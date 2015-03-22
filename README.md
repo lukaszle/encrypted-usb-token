@@ -63,10 +63,11 @@ fi
 /usr/bin/ssh-add -D
 /usr/bin/ssh-add -t ${HOURS}H $KEY
 /usr/sbin/diskutil umount force $DIR
+```
+
 You will need to mark the script as executable:
 
-chmod +x /Volumes/keys/load
-```
+`chmod +x /Volumes/keys/load`
 
 Now, you can simply run `/Volumes/keys/load` to load your keys and eject the drive automatically. This makes for a very quick workflow.
 
