@@ -1,5 +1,7 @@
 # Building an Encrypted USB Drive for your SSH Keys
 
+You can read the original article from [Tammer Saleh blog](http://tammersaleh.com/posts/building-an-encrypted-usb-drive-for-your-ssh-keys-in-os-x/).
+
 Working on a Platform like Cloud Foundry, which is relied upon by a growing community of "serious" companies requires us to take security seriously as well.
 Security is something you know, something you have, and something you are. The commonly agreed upon tenants of strong security is that it requires a combination of "something you know, something you have, and something you are." Two factor authentication includes both of those - usually something you know and something you have.
 Here's how we've implemented two factor authentication across the board for our SSH keys using USB keychain drives. This strengthens our access to Github repositories and the numerous deployments we manage.
@@ -16,8 +18,9 @@ Now, you'll be prompted for your decryption password whenever you insert the dri
 
 If you don't already have SSH keys, then you'll want to generate a new set. In fact, it's probably a good idea to use this as a chance to create a fresh set either way, just in case yours have been compromised.
 
-You create a new SSH key pair by running ssh-keygen:
-`
+You create a new SSH key pair by running `ssh-keygen`:
+
+```
 $ ssh-keygen -f /Volumes/keys/id_rsa -C "Tammer Saleh"
 Generating public/private rsa key pair.
 Enter passphrase (empty for no passphrase):
@@ -38,14 +41,15 @@ The key's randomart image is:
 |     x   x       |
 |                 |
 +-----------------+
-`
+```
 
 ## Script to Load Keys and Eject
 
 At this point, you could use the drive by manually adding the keys to your running agent and ejecting the drive. But that's a lot of typing and feels fairly error prone. Instead, let's script it.
 
 Create the following script on your drive, and name it load:
-`
+
+```
 #!/usr/bin/env bash
 
 HOURS=$1
@@ -62,18 +66,18 @@ fi
 You will need to mark the script as executable:
 
 chmod +x /Volumes/keys/load
-`
+```
 
-Now, you can simply run /Volumes/keys/load to load your keys and eject the drive automatically. This makes for a very quick workflow.
+Now, you can simply run `/Volumes/keys/load` to load your keys and eject the drive automatically. This makes for a very quick workflow.
 
-`
+```
 $ /Volumes/keys/load
 All identities removed.
 Enter passphrase for /Volumes/keys/id_rsa: <your_password>
 Identity added: /Volumes/keys/id_rsa (/Volumes/keys/id_rsa)
 Lifetime set to 3600 seconds
 Volume keys on disk3 force-unmounted
-`
+```
 
 ## Make a Backup Image
 
@@ -88,5 +92,5 @@ Ideally, you'll store your backup somewhere super secure. Another option is to s
 While this is infinitely better than leaving your ssh key unprotected on your computer, there are some weaknesses and potential future improvements.
 The major weakness is that we're trusting that the host machine hasn't been tampered with. If it has, then we're handing our private keys over to it. Again, this risk exists either way, and isn't made worse through this technique.
 The forced eject is blatant cargo culting. When tried without forcing, the drive reports being in use, but lsof shows no processes using it. This is the case even when the script is run from outside the drive, so I'm at a loss.
-Ideally, we could store our entire ~/.ssh directory on the keychain. This requires a symlink from ~/.ssh to /Volumes/keys/.ssh, and has a number of other complications around permissions. We haven't investigated furthur.
+Ideally, we could store our entire `~/.ssh` directory on the keychain. This requires a symlink from `~/.ssh` to `/Volumes/keys/.ssh`, and has a number of other complications around permissions. We haven't investigated furthur.
 
